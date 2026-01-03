@@ -1,35 +1,93 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Welcome from '@/pages/Welcome';
+
+import FeaturesPage from '@/pages/FeaturesPage'; 
+import LoginPage from '@/features/auth/pages/LoginPage';
+import SignupPage from '@/features/auth/pages/SignupPage';
+import AuthLayout from '@/layouts/AuthLayout';
+
+import DashboardLayout from '@/layouts/DashboardLayout';
+import DashboardPage from '@/pages/DashboardPage';
+import EmployeeListPage from '@/features/employees/pages/EmployeeListPage';
+import AttendancePage from '@/features/attendance/pages/AttendancePage';
+import LeavePage from '@/features/leave/pages/LeavePage';
+import PayrollPage from '@/features/payroll/pages/PayrollPage';
+
+import { AuthProvider } from '@/context/AuthContext';
+import ProtectedRoute from '@/routes/ProtectedRoute';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AuthProvider>
+        <Router>
+        <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/features" element={<FeaturesPage />} />
+
+            {/* Auth Routes */}
+            <Route path="/auth" element={<AuthLayout />}>
+                <Route path="login" element={<LoginPage />} />
+                <Route path="register" element={<SignupPage />} />
+                <Route index element={<LoginPage />} />
+            </Route>
+            
+            {/* Alias Routes for Features that require Auth */}
+            <Route path="/hr-management" element={
+                 <ProtectedRoute allowedRoles={['admin']}>
+                     <DashboardLayout />
+                 </ProtectedRoute>
+            }>
+                 <Route index element={<DashboardPage />} />
+            </Route>
+
+            <Route path="/employee-portal" element={
+                 <ProtectedRoute allowedRoles={['employee']}>
+                     <DashboardLayout />
+                 </ProtectedRoute>
+            }>
+                 <Route index element={<DashboardPage />} />
+            </Route>
+
+            {/* Admin Dashboard */}
+            <Route 
+                path="/admin-dashboard" 
+                element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                        <DashboardLayout />
+                    </ProtectedRoute>
+                }
+            >
+                <Route index element={<DashboardPage />} />
+                <Route path="employees" element={<EmployeeListPage />} />
+                <Route path="attendance" element={<AttendancePage />} />
+                <Route path="leave" element={<LeavePage />} />
+                <Route path="payroll" element={<PayrollPage />} />
+            </Route>
+
+            {/* Employee Dashboard */}
+            <Route 
+                path="/employee-dashboard" 
+                element={
+                    <ProtectedRoute allowedRoles={['employee']}>
+                        <DashboardLayout />
+                    </ProtectedRoute>
+                }
+            >
+                <Route index element={<DashboardPage />} />
+                <Route path="employees" element={<EmployeeListPage />} /> {/* Profile */}
+                <Route path="attendance" element={<AttendancePage />} />
+                <Route path="leave" element={<LeavePage />} />
+                <Route path="payroll" element={<PayrollPage />} />
+            </Route>
+
+             {/* Legacy Redirect */}
+             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} /> 
+
+        </Routes>
+        </Router>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
