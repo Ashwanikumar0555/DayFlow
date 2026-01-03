@@ -12,6 +12,16 @@ const { errorHandler, notFound } = require('./middleware/error.middleware');
 // Initialize express app
 const app = express();
 
+// Disable ETags to prevent 304 responses (useful for dev debugging)
+app.set('etag', false);
+app.disable('view cache');
+
+// Force no-cache headers
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
+
 // Connect to database
 connectDB();
 
