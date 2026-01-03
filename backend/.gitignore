@@ -3,17 +3,9 @@ node_modules/
 npm-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment
 .env
 .env.*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build outputs
-dist/
-build/
 
 # Logs
 logs/
